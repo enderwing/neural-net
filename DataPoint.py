@@ -3,12 +3,5 @@ class DataPoint:
         self.inputs = inputs
         self.evs = evs
 
-
-
-
-
-
-
-
     def __str__(self):
         return str(self.inputs) + str(self.evs)

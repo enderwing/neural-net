@@ -14,6 +14,7 @@ class Layer:
 	def __init__(self, nodesIn: int, nodesOut: int):
 		self.nodesIn = nodesIn
 		self.nodesOut = nodesOut
+		# (r.random() * 2 - 1) / m.sqrt(nodesIn)
 		self.weights = [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
 		self.costGradientWeights = [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
 		self.biases = [0 for j in range(nodesOut)]
