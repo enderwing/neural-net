@@ -43,17 +43,17 @@ def main():
 	nnet = NeuralNetwork([2, 3, 2])
 
 	numData = 200
-	sampleSize = 25
+	sampleSize = 200
 	data = generate_data(numData)
 	while True:
 		print(nnet.cost_average(data))
 		print(f"{nnet.test_points(data)}/{numData}")
-		for layer in nnet.layers:
-			print(layer.weights)
-			print(layer.biases)
+		# for layer in nnet.layers:
+		# 	print(layer.weights)
+		# 	print(layer.biases)
 		graph_data(data, nnet)
 		for i in range(1000):
-			nnet.learn(r.sample(data, sampleSize), 0.15)
+			nnet.learn_with_derivatives(r.sample(data, sampleSize), 0.25)
 
 
 if __name__ == '__main__':

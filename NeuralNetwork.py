@@ -46,6 +46,32 @@ class NeuralNetwork:
 		for layer in self.layers:
 			layer.apply_gradients(learnRate)
 
+	def reset_gradients(self):
+		for layer in self.layers:
+			layer.costGradientWeights = [[0] * layer.nodesIn] * layer.nodesOut
+			layer.costGradientBiases = [0] * layer.nodesOut
+
+	def learn_with_derivatives(self, trainingData: list[DataPoint], learnRate):
+		for point in trainingData:
+			self.derivative_gradient_update(point)
+		for layer in self.layers:
+			layer.apply_gradients(learnRate / len(trainingData))
+		self.reset_gradients()
+
+
+	def derivative_gradient_update(self, point: DataPoint):
+		self.calculate_outputs(point.inputs)
+
+		outputLayer = self.layers[len(self.layers)-1]
+		nodeValues = outputLayer.calculate_output_node_values(point.evs)
+		outputLayer.update_gradients(nodeValues)
+
+		for i in range(len(self.layers) - 1):
+			hiddenLayerIndex = len(self.layers) - 2 - i
+			hiddenLayer = self.layers[hiddenLayerIndex]
+			nodeValues = hiddenLayer.calculate_hidden_node_values(self.layers[hiddenLayerIndex + 1], nodeValues)
+			hiddenLayer.update_gradients(nodeValues)
+
 	def test_points(self, data: list[DataPoint]):
 		count = 0
 		for point in data:
