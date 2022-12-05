@@ -1,4 +1,5 @@
 import Layer
+
 from DataPoint import DataPoint
 
 
@@ -15,6 +16,11 @@ class NeuralNetwork:
 		outputs = self.calculate_outputs(point.inputs)
 		return outputs.index(max(outputs))
 
+	def is_classified_correctly(self, point: DataPoint):
+		if self.classify(point) == point.evs[1]:
+			return True
+		return False
+
 	def cost_of_point(self, inputPoint: DataPoint):
 		outputs = self.calculate_outputs(inputPoint.inputs)
 		cost = 0
@@ -29,7 +35,7 @@ class NeuralNetwork:
 		return total_cost / len(inputPoints)
 
 	def learn(self, trainingData: list[DataPoint], learnRate):
-		h = 0.0001
+		h = 0.0000000001
 		originalCost = self.cost_average(trainingData)
 
 		for layer in self.layers:
@@ -39,10 +45,10 @@ class NeuralNetwork:
 					costChange = self.cost_average(trainingData) - originalCost
 					layer.weights[out][inn] -= h
 					layer.costGradientWeights[out][inn] = costChange / h
-			layer.biases[out] += h
-			costChange = self.cost_average(trainingData) - originalCost
-			layer.biases[out] -= h
-			layer.costGradientBiases[out] = costChange / h
+				layer.biases[out] += h
+				costChange = self.cost_average(trainingData) - originalCost
+				layer.biases[out] -= h
+				layer.costGradientBiases[out] = costChange / h
 		for layer in self.layers:
 			layer.apply_gradients(learnRate)
 
@@ -58,23 +64,27 @@ class NeuralNetwork:
 			layer.apply_gradients(learnRate / len(trainingData))
 		self.reset_gradients()
 
-
 	def derivative_gradient_update(self, point: DataPoint):
-		self.calculate_outputs(point.inputs)
+		classification = self.is_classified_correctly(point)
 
 		outputLayer = self.layers[len(self.layers)-1]
 		nodeValues = outputLayer.calculate_output_node_values(point.evs)
-		outputLayer.update_gradients(nodeValues)
+		outputLayer.update_gradients(nodeValues, classification)
 
 		for i in range(len(self.layers) - 1):
 			hiddenLayerIndex = len(self.layers) - 2 - i
 			hiddenLayer = self.layers[hiddenLayerIndex]
 			nodeValues = hiddenLayer.calculate_hidden_node_values(self.layers[hiddenLayerIndex + 1], nodeValues)
-			hiddenLayer.update_gradients(nodeValues)
+			hiddenLayer.update_gradients(nodeValues, classification)
 
 	def test_points(self, data: list[DataPoint]):
 		count = 0
+		failedPoints = []
+		passedPoints = []
 		for point in data:
 			if self.classify(point) == point.evs[1]:
 				count += 1
-		return count
+				passedPoints.append(point)
+			else:
+				failedPoints.append(point)
+		return count, failedPoints, passedPoints

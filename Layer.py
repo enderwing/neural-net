@@ -1,9 +1,10 @@
 import math as m
 import random as r
+import numpy as np
 
 
 def activation_function(weightedInput):
-	return 1 / (1 + m.exp(-weightedInput))
+	return 1 / (1 + np.exp(-weightedInput))
 
 def activation_derivative(weightedInput):
 	activation = activation_function(weightedInput)
@@ -21,16 +22,16 @@ class Layer:
 		self.nodesIn = nodesIn
 		self.nodesOut = nodesOut
 		# (r.random() * 2 - 1) / m.sqrt(nodesIn)
-		self.weights = [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
-		self.costGradientWeights = [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
+		self.weights = [[0] * self.nodesIn] * nodesOut  # [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
+		self.costGradientWeights = [[0] * self.nodesIn] * nodesOut  # [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
 		self.biases = [0 for j in range(nodesOut)]
 		self.costGradientBiases = [0 for j in range(nodesOut)]
 		self.activationValues = [0] * nodesOut
 		self.weightedInputs = [0] * nodesOut
-		self.inputs = [0] * nodesIn
+		self.previousLayerActivations = [0] * nodesIn
 
 	def calculate_outputs(self, inputs):
-		self.inputs = inputs
+		self.previousLayerActivations = inputs
 		outputs = [0] * self.nodesOut
 		for iOut in range(self.nodesOut):
 			weightedInput = self.biases[iOut]
@@ -56,15 +57,15 @@ class Layer:
 			hiddenNodeValues[iOut] = nodeValue * activation_derivative(self.weightedInputs[iOut])
 		return hiddenNodeValues
 
-	def update_gradients(self, nodeValues):
+	def update_gradients(self, nodeValues, correct: bool):
 		for iOut in range(self.nodesOut):
 			for iIn in range(self.nodesIn):
-				costWrtWeight = self.inputs[iIn] * nodeValues[iOut]
-				self.costGradientWeights[iOut][iIn] += costWrtWeight
-			self.costGradientBiases[iOut] += nodeValues[iOut]
+				costWrtWeight = self.previousLayerActivations[iIn] * nodeValues[iOut]
+				self.costGradientWeights[iOut][iIn] = costWrtWeight
+			self.costGradientBiases[iOut] = nodeValues[iOut]
 
 	def apply_gradients(self, learnRate):
-		for out in range(self.nodesOut):
-			for inn in range(self.nodesIn):
-				self.weights[out][inn] -= self.costGradientWeights[out][inn] * learnRate
-			self.biases[out] -= self.costGradientBiases[out] * learnRate
+		for iOut in range(self.nodesOut):
+			for iIn in range(self.nodesIn):
+				self.weights[iOut][iIn] -= self.costGradientWeights[iOut][iIn] * learnRate
+			self.biases[iOut] -= self.costGradientBiases[iOut] * learnRate
