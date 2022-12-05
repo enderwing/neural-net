@@ -1,40 +1,84 @@
 import platform
-
 if platform.system() == "Windows":
     from mnist.loader import MNIST
 else:
     from mnist import MNIST
+
 import time as t
 import random as r
+import numpy as np
 
 from NeuralNetwork import NeuralNetwork
 from DataPoint import DataPoint
 
 mndata = MNIST('data')
 
+print("reading data")
 trainImages, trainLabels = mndata.load_training()
+testImages, testLabels = mndata.load_testing()
 
-nnet = NeuralNetwork([784, 10])
-data = []
-numData = 1000
-sampleSize = 100
+print("preparing data")
+nnet = NeuralNetwork([784, 50, 10])
+trainingData = []
+numData = len(trainImages)
+batchSize = 500
 for i in range(numData):
     evs = [0] * 11
     evs[trainLabels[i]] = 1
     evs[10] = trainLabels[i]
-    data.append(DataPoint(trainImages[i], evs))
+    trainingData.append(DataPoint(list(np.divide(trainImages[i], 255)), evs))
 
+print("beginning network training...")
+epochCount = 1
+epochProgress = 0
+try:
+    while True:
+        cost, correct, _, _ = nnet.points_info(trainingData)
+        print(cost)
+        print(f"{correct}/{numData}")
+        if correct == numData:
+            break
+        for i in range(20):
+            sampleData = trainingData[epochProgress:epochProgress + batchSize]
+            epochProgress += batchSize
+            print(f"epoch #{epochCount} progress: {epochProgress/60000 * 100:2.2f}")
+            if epochProgress + batchSize > len(trainingData):
+                r.shuffle(trainingData)
+                epochProgress = 0
+                epochCount += 1
+            nnet.learn_with_derivatives(sampleData, .05)
+except KeyboardInterrupt:
+    pass
 
+# prepare test data
+print("preparing test data")
+testData = []
+for i in range(len(testLabels)):
+    evs = [0] * 11
+    evs[testLabels[i]] = 1
+    evs[10] = testLabels[i]
+    testData.append(DataPoint(list(np.divide(testImages[i], 255)), evs))
+passed = []
+failed = []
+print("testing test data !")
+for i, point in enumerate(testData):
+    if nnet.check_digit(point):
+        passed.append([point, i])
+    else:
+        failed.append([point, i])
+
+print("~~~ TEST DATA RESULTS ~~~")
+print(f"CHRIS!    Passed num: {len(passed)}")
+print(f"HI!       Failed num: {len(failed)}")
+print("press enter to see failed tests")
 while True:
-    print(nnet.cost_average(data))
-    correct, _, _ = nnet.check_digits(data)
-    print(f"{correct}/{numData}")
-    # for layer in nnet.layers:
-    #     print(layer.weights)
-    #     print(layer.biases)
-    for i in range(100):
-        sampleData = r.sample(data, sampleSize)
-        nnet.learn_with_derivatives(sampleData, 1)
+    point = failed[r.randint(0,len(failed)-1)]
+    print(point[0].evs)
+    print(mndata.display(testImages[point[1]]))
+    print(nnet.classify(point[0]))
+    input()
+
+
     # count = 0
     # for i in range(numData):
     #     print(mndata.display(trainImages[i]))

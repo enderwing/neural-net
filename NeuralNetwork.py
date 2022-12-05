@@ -5,7 +5,7 @@ from DataPoint import DataPoint
 
 class NeuralNetwork:
 	def __init__(self, layers):
-		self.layers = [Layer.Layer(layers[x], layers[x+1]) for x in range(len(layers)-1)]
+		self.layers = [Layer.Layer(layers[x], layers[x+1], True if x == len(layers)-2 else False) for x in range(len(layers)-1)]
 
 	def calculate_outputs(self, inputs):
 		for layer in self.layers:
@@ -27,6 +27,31 @@ class NeuralNetwork:
 		for i in range(len(outputs)):
 			cost += Layer.node_cost(outputs[i], inputPoint.evs[i])
 		return cost
+
+	def point_info(self, point: DataPoint):
+		outputs = self.calculate_outputs(point.inputs)
+		cost = 0
+		for i in range(len(outputs)):
+			cost += Layer.node_cost(outputs[i], point.evs[i])
+		return outputs.index(max(outputs)) == point.evs[10], cost
+
+	def points_info(self, points: list[DataPoint]):
+		costTotal = 0
+		countCorrect = 0
+		failed = []
+		passed = []
+		for point in points:
+			correct, cost = self.point_info(point)
+			costTotal += cost
+
+			if correct:
+				countCorrect += 1
+				passed.append(point)
+			else:
+				failed.append(point)
+		return costTotal/len(points), countCorrect, passed, failed
+
+
 
 	def cost_average(self, inputPoints: list[DataPoint]):
 		total_cost = 0
@@ -60,9 +85,9 @@ class NeuralNetwork:
 	def learn_with_derivatives(self, trainingData: list[DataPoint], learnRate):
 		for point in trainingData:
 			self.derivative_gradient_update(point)
-		for layer in self.layers:
-			layer.apply_gradients(learnRate / len(trainingData))
-		self.reset_gradients()
+			for layer in self.layers:
+				layer.apply_gradients(learnRate)
+		# self.reset_gradients()
 
 	def derivative_gradient_update(self, point: DataPoint):
 		classification = self.is_classified_correctly(point)

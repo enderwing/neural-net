@@ -3,20 +3,22 @@ import random as r
 import numpy as np
 
 
-def activation_function(weightedInput):
+def activation_function_sigmoid(weightedInput):
 	## sigmoid
-	# if weightedInput < -700:
-	# 	return 0
-	# return 1 / (1 + np.exp(-weightedInput))
+	if weightedInput < -700:
+		return 0
+	return 1 / (1 + np.exp(-weightedInput))
 
+def activation_function_ReLU(weightedInput):
 	# ReLU
 	return max(0, weightedInput)
 
-def activation_derivative(weightedInput):
+def activation_derivative_sigmoid(weightedInput):
 	## sigmoid
-	# activation = activation_function(weightedInput)
-	# return activation * (1 - activation)
+	activation = activation_function_sigmoid(weightedInput)
+	return activation * (1 - activation)
 
+def activation_derivative_ReLU(weightedInput):
 	## ReLU
 	if weightedInput <= 0:
 		return 0
@@ -30,9 +32,10 @@ def node_cost_derivative(activation, expectedOutput):
 
 
 class Layer:
-	def __init__(self, nodesIn: int, nodesOut: int):
+	def __init__(self, nodesIn: int, nodesOut: int, isOut: bool):
 		self.nodesIn = nodesIn
 		self.nodesOut = nodesOut
+		self.isOutputLayer = isOut
 		# (r.random() * 2 - 1) / m.sqrt(nodesIn)
 		self.weights = [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
 		self.costGradientWeights = [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
@@ -50,14 +53,17 @@ class Layer:
 			for iIn in range(self.nodesIn):
 				weightedInput += inputs[iIn] * self.weights[iOut][iIn]
 			self.weightedInputs[iOut] = weightedInput
-			self.activationValues[iOut] = activation_function(weightedInput)
+			if self.isOutputLayer:
+				self.activationValues[iOut] = activation_function_sigmoid(weightedInput)
+			else:
+				self.activationValues[iOut] = activation_function_ReLU(weightedInput)
 			outputs[iOut] = self.activationValues[iOut]
 		return outputs
 
 	def calculate_output_node_values(self, evs):
 		nodeValues = [0] * self.nodesOut
 		for i in range(self.nodesOut):
-			nodeValues[i] = activation_derivative(self.weightedInputs[i]) * node_cost_derivative(self.activationValues[i], evs[i])
+			nodeValues[i] = activation_derivative_sigmoid(self.weightedInputs[i]) * node_cost_derivative(self.activationValues[i], evs[i])
 		return nodeValues
 
 	def calculate_hidden_node_values(self, prevLayer, prevLayerNodeValues):
@@ -66,7 +72,7 @@ class Layer:
 			nodeValue = 0
 			for iPrev in range(prevLayer.nodesOut):
 				nodeValue += prevLayer.weights[iPrev][iOut] * prevLayerNodeValues[iPrev]
-			hiddenNodeValues[iOut] = nodeValue * activation_derivative(self.weightedInputs[iOut])
+			hiddenNodeValues[iOut] = nodeValue * activation_derivative_ReLU(self.weightedInputs[iOut])
 		return hiddenNodeValues
 
 	def update_gradients(self, nodeValues, correct: bool):

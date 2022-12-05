@@ -77,10 +77,10 @@ def train_network():
 		# if correctPoints >= (numData-5):
 		# graph_data(data, nnet)
 
-		# graph_data(data, nnet)
-		for i in range(2500):
+		graph_data(data, nnet)
+		for i in range(500):
 			# nnet.learn(r.sample(data, sampleSize), .1)
-			nnet.learn_with_derivatives(r.sample(data, sampleSize), .1)
+			nnet.learn_with_derivatives(r.sample(data, sampleSize), .25)
 
 def	gradients_test():
 	oldNet = NeuralNetwork([2,3,2])
@@ -104,9 +104,14 @@ def	gradients_test():
 	# for layerIndex in range(len(oldNet.layers)):
 	# 	newNet.layers[layerIndex] = copy.deepcopy(oldNet.layers[layerIndex])
 
-	for i in range(1):
+	for i in range(10):
 		oldNet.learn(data, 0.35)
 		newNet.learn_with_derivatives(data, 0.35)
+	for layerIndex in range(len(oldNet.layers)):
+		newNet.layers[layerIndex] = copy.deepcopy(oldNet.layers[layerIndex])
+	for i in range(150):
+		oldNet.learn(data, 0.35)
+		newNet.learn_with_derivatives(r.sample(data, 50), 0.70)
 	print("GRADIENTS")
 	print(oldNet.layers[0].costGradientWeights)
 	print(newNet.layers[0].costGradientWeights)
