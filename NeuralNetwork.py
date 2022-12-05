@@ -1,11 +1,18 @@
-import Layer
+import os
 
+import Layer
 from DataPoint import DataPoint
 
 
 class NeuralNetwork:
 	def __init__(self, layers):
 		self.layers = [Layer.Layer(layers[x], layers[x+1], True if x == len(layers)-2 else False) for x in range(len(layers)-1)]
+		networkNames = os.listdir("networks/")
+		testID = 0
+		for i in range(len(networkNames)):
+			if f"network{testID}.pickle" in networkNames:
+				testID += 1
+		self.networkID = testID
 
 	def calculate_outputs(self, inputs):
 		for layer in self.layers:
@@ -50,8 +57,6 @@ class NeuralNetwork:
 			else:
 				failed.append(point)
 		return costTotal/len(points), countCorrect, passed, failed
-
-
 
 	def cost_average(self, inputPoints: list[DataPoint]):
 		total_cost = 0

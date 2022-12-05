@@ -1,3 +1,4 @@
+import pickle
 import platform
 if platform.system() == "Windows":
     from mnist.loader import MNIST
@@ -9,7 +10,9 @@ import random as r
 import numpy as np
 
 from NeuralNetwork import NeuralNetwork
+import NNetWrapper as nwrap
 from DataPoint import DataPoint
+
 
 mndata = MNIST('data')
 
@@ -20,8 +23,8 @@ testImages, testLabels = mndata.load_testing()
 print("preparing data")
 nnet = NeuralNetwork([784, 50, 10])
 trainingData = []
-numData = len(trainImages)
-batchSize = 500
+numData = 5000
+batchSize = 250
 for i in range(numData):
     evs = [0] * 11
     evs[trainLabels[i]] = 1
@@ -38,7 +41,7 @@ try:
         print(f"{correct}/{numData}")
         if correct == numData:
             break
-        for i in range(20):
+        for i in range(5):
             sampleData = trainingData[epochProgress:epochProgress + batchSize]
             epochProgress += batchSize
             print(f"epoch #{epochCount} progress: {epochProgress/60000 * 100:2.2f}")
@@ -50,6 +53,12 @@ try:
 except KeyboardInterrupt:
     pass
 
+# save the network state
+nwrap.save_network(nnet)
+
+
+print("done dsaving")
+input()
 # prepare test data
 print("preparing test data")
 testData = []
