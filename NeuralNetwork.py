@@ -87,4 +87,22 @@ class NeuralNetwork:
 				passedPoints.append(point)
 			else:
 				failedPoints.append(point)
-		return count, failedPoints, passedPoints
+		return count, passedPoints, failedPoints
+
+	def check_digit(self, digit: DataPoint):
+		if self.classify(digit) == digit.evs[10]:
+			return True
+		return False
+
+	def check_digits(self, digits: list[DataPoint]):
+		count = 0
+		failed = []
+		passed = []
+		for i in range(len(digits)):
+			if self.check_digit(digits[i]):
+				count += 1
+				passed.append(digits[i])
+			else:
+				failed.append(digits[i])
+		return count, passed, failed
+

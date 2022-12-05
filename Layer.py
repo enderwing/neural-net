@@ -4,11 +4,23 @@ import numpy as np
 
 
 def activation_function(weightedInput):
-	return 1 / (1 + np.exp(-weightedInput))
+	## sigmoid
+	# if weightedInput < -700:
+	# 	return 0
+	# return 1 / (1 + np.exp(-weightedInput))
+
+	# ReLU
+	return max(0, weightedInput)
 
 def activation_derivative(weightedInput):
-	activation = activation_function(weightedInput)
-	return activation * (1 - activation)
+	## sigmoid
+	# activation = activation_function(weightedInput)
+	# return activation * (1 - activation)
+
+	## ReLU
+	if weightedInput <= 0:
+		return 0
+	return 1
 
 def node_cost(outputActivation, expectedOutput):
 	return (outputActivation - expectedOutput)**2
@@ -22,8 +34,8 @@ class Layer:
 		self.nodesIn = nodesIn
 		self.nodesOut = nodesOut
 		# (r.random() * 2 - 1) / m.sqrt(nodesIn)
-		self.weights = [[0] * self.nodesIn] * nodesOut  # [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
-		self.costGradientWeights = [[0] * self.nodesIn] * nodesOut  # [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
+		self.weights = [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
+		self.costGradientWeights = [[(r.random() * 2 - 1) / m.sqrt(nodesIn) for i in range(nodesIn)] for j in range(nodesOut)]
 		self.biases = [0 for j in range(nodesOut)]
 		self.costGradientBiases = [0 for j in range(nodesOut)]
 		self.activationValues = [0] * nodesOut
@@ -61,8 +73,8 @@ class Layer:
 		for iOut in range(self.nodesOut):
 			for iIn in range(self.nodesIn):
 				costWrtWeight = self.previousLayerActivations[iIn] * nodeValues[iOut]
-				self.costGradientWeights[iOut][iIn] = costWrtWeight
-			self.costGradientBiases[iOut] = nodeValues[iOut]
+				self.costGradientWeights[iOut][iIn] = costWrtWeight * (2 if not correct else 1)
+			self.costGradientBiases[iOut] = nodeValues[iOut] * (2 if not correct else 1)
 
 	def apply_gradients(self, learnRate):
 		for iOut in range(self.nodesOut):
