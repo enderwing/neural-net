@@ -9,8 +9,8 @@ if platform.system() == "Windows": from mnist.loader import MNIST
 else: from mnist import MNIST
 
 
-#TODO: make code that is nice to run for project presentation
-#TODO: import and process custom images?
+# TODO: make code that is nice to run for project presentation
+# TODO: import and process custom images?
 
 
 def import_data(numData, numTestData):
@@ -38,21 +38,34 @@ def import_data(numData, numTestData):
 
     return trainingData, testData
 
-
 def main():
-
+    inputLoop = True
+    print("Type (Q) at any point to quit")
     userInput = input("Type (N) to create a network or (I) to import a network\n > ").lower().strip()
-    if userInput == "n":
-        userLayers = input("Type the layer input string (see readme)\n > ")
-        userLayers = [int(x) for x in userLayers.split(',')]
-        nnet = NNetWrapper.create_network(userLayers)
-    elif userInput == "i":
-        userFileName = input("Type the file path with the network file to import\n > ")
-        nnet = NNetWrapper.import_network(userFileName)
+    while inputLoop:
+        if userInput == "n":
+            userLayers = input("Type the layer input string (see readme)\n > ")
+            userLayers = [int(x) for x in userLayers.split(',')]
+            nnet = NNetWrapper.create_network(userLayers)
+            inputLoop = False
+        elif userInput == "i":
+            userFileName = input("Type the file path with the network file to import\n > ")
+            nnet = NNetWrapper.import_network(userFileName)
+            inputLoop = False
+        elif userInput == "q":
+            print("Exiting")
+            return 0
 
-    userInput = input("Type (C) to identify a custom image\n > ").lower().strip()
-    if userInput == "c":
-        userImageName = input("Type the name of the image (which must be stored in the images folder)\n > ")
+    inputLoop = True
+    while inputLoop:
+        userInput = input("Type (C) to identify a custom image\n > ").lower().strip()
+        if userInput == "c":
+            userImageName = input("Press enter once an image has been saved to the images folder\n > ")
+        elif userInput == "q":
+            print("Exiting")
+            return 0
+
+
 
 
 

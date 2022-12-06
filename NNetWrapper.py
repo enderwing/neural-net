@@ -79,3 +79,13 @@ def preprocess_image(imageName):
     outImage = cv.warpAffine(outImage, np.float32([[1, 0, xbar], [0, 1, ybar]]), (28, 28))
 
     cv.imwrite(f"images/{imageName}-processed.png", outImage)
+
+def classify_digit(imageName, nnet: NeuralNetwork):
+    image = cv.imread(f"images/{imageName}.png")
+    imageData = [0] * 784
+    for row in range(28):
+        for col in range(28):
+            imageData[col + 28 * row] = image[row][col][0]
+    point = DataPoint(imageData, [-1] * 10)
+    digitGuess = nnet.classify(point)
+    return digitGuess
