@@ -1,7 +1,10 @@
 # neural-net
-A custom neural net implementation I am writing to practice Python. The neural net is a simple, Forward Feeding network that is trained using backpropagation.
-The code is currently a little messy, with several vestigal bits that I wrote to use for testing. 
-I will clean these up eventually if I continue developing this project passed it's due date.
+A custom neural net implementation I am writing to practice Python. The network could be trained with any data,
+I am training it with handwriting data of the 10 digits so that it will recognize other handwritten digits.
+
+The neural net is a simple, Forward Feeding network that is trained using backpropagation.
+The code is currently a little messy, with several vestigial bits that I wrote to use for testing. 
+I will clean these up eventually if I continue developing this project passed its due date.
 
 ## Usage
 To use the network, run the `main.py` script. By default, there are no trained networks available. One can be created by entering `C` at the first prompt.
