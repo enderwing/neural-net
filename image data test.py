@@ -14,6 +14,8 @@ import NNetWrapper as nwrap
 from DataPoint import DataPoint
 
 
+### Testing bed file, not used in execution of main.py ###
+
 mndata = MNIST('data')
 
 print("reading data")

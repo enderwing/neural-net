@@ -3,6 +3,9 @@ import random as r
 import numpy as np
 
 
+## below are activation functions, which transform weighted inputs into the outputs of the node
+# and the node cost function, which defines how far off a node is from the expected value of a set of inputs
+
 def activation_function_sigmoid(weightedInput):
 	## sigmoid
 	if weightedInput < -700:
@@ -32,6 +35,7 @@ def node_cost_derivative(activation, expectedOutput):
 
 
 class Layer:
+	# setup all the variables needed to store data about the node, weights and biases, and intermediary values
 	def __init__(self, nodesIn: int, nodesOut: int, isOut: bool):
 		self.nodesIn = nodesIn
 		self.nodesOut = nodesOut
@@ -45,6 +49,7 @@ class Layer:
 		self.weightedInputs = [0] * nodesOut
 		self.previousLayerActivations = [0] * nodesIn
 
+	# calculate weighted inputs from inputs, pass through the activation function, return outputs
 	def calculate_outputs(self, inputs):
 		self.previousLayerActivations = inputs
 		outputs = [0] * self.nodesOut
@@ -60,12 +65,16 @@ class Layer:
 			outputs[iOut] = self.activationValues[iOut]
 		return outputs
 
+	# part of backpropagation
+	# calculate how sensitive the cost is to a change in the weighted input of the output nodes
 	def calculate_output_node_values(self, evs):
 		nodeValues = [0] * self.nodesOut
 		for i in range(self.nodesOut):
 			nodeValues[i] = activation_derivative_sigmoid(self.weightedInputs[i]) * node_cost_derivative(self.activationValues[i], evs[i])
 		return nodeValues
 
+	# part of backpropagation
+	# calculate how sensitive the cost is to a change in the weighted input of the hidden nodes
 	def calculate_hidden_node_values(self, prevLayer, prevLayerNodeValues):
 		hiddenNodeValues = [0] * self.nodesOut
 		for iOut in range(self.nodesOut):
@@ -75,6 +84,8 @@ class Layer:
 			hiddenNodeValues[iOut] = nodeValue * activation_derivative_ReLU(self.weightedInputs[iOut])
 		return hiddenNodeValues
 
+	# part of backpropagation
+	# using the node values of the current layer, calculate and store gradients of this layers weights and biases
 	def update_gradients(self, nodeValues, correct: bool):
 		for iOut in range(self.nodesOut):
 			for iIn in range(self.nodesIn):
@@ -82,6 +93,8 @@ class Layer:
 				self.costGradientWeights[iOut][iIn] = costWrtWeight * (2 if not correct else 1)
 			self.costGradientBiases[iOut] = nodeValues[iOut] * (2 if not correct else 1)
 
+	# part of backpropagation
+	# apply accumulated gradients, scaled by the learn rate
 	def apply_gradients(self, learnRate):
 		for iOut in range(self.nodesOut):
 			for iIn in range(self.nodesIn):

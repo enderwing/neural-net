@@ -2,17 +2,13 @@ import numpy as np
 import platform
 
 from DataPoint import DataPoint
-from NeuralNetwork import NeuralNetwork
 import NNetWrapper
 
 if platform.system() == "Windows": from mnist.loader import MNIST
 else: from mnist import MNIST
 
 
-# TODO: make code that is nice to run for project presentation
-# TODO: import and process custom images?
-
-
+# imports data from the MNIST data set for training and testing
 def import_data(numData, numTestData):
     mndata = MNIST('data')
 
@@ -24,12 +20,12 @@ def import_data(numData, numTestData):
     trainingData = []
     testData = []
 
+    # turn data from idx3 format into DataPoint objects for passing to the network
     for i in range(numData):
         evs = [0] * 11
         evs[trainLabels[i]] = 1
         evs[10] = trainLabels[i]
         trainingData.append(DataPoint(list(np.divide(trainImages[i], 255)), evs))
-
     for i in range(numTestData):
         evs = [0] * 11
         evs[testLabels[i]] = 1
@@ -38,7 +34,9 @@ def import_data(numData, numTestData):
 
     return trainingData, testData
 
+# main user interaction
 def main():
+    # create or import a network
     inputLoop = True
     print("Type (Q) at any point to quit")
     userInput = input("Type (N) to create a network or (I) to import a network\n > ").lower().strip()
@@ -56,6 +54,7 @@ def main():
             print("Exiting")
             return 0
 
+    # classify a custom image or pick an image from the MNIST test set
     inputLoop = True
     while inputLoop:
         userInput = input("Type (C) to identify a custom image\n > ").lower().strip()
@@ -68,9 +67,6 @@ def main():
         elif userInput == "q":
             print("Exiting")
             return 0
-
-
-
 
 
 if __name__ == "__main__":
