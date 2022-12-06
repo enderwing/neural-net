@@ -10,6 +10,10 @@ from DataPoint import DataPoint
 from NeuralNetwork import NeuralNetwork
 import NNetWrapper as nwrap
 
+
+# old code used for testing the net with simple, 2 parameter data
+# could visualize data by graphing in a coordinate grid with color coordination
+
 xrange = 1
 yrange = 1
 radius = 0.3
