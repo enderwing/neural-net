@@ -23,7 +23,7 @@ testImages, testLabels = mndata.load_testing()
 print("preparing data")
 nnet = NeuralNetwork([784, 50, 10])
 trainingData = []
-numData = 5000
+numData = 60000
 batchSize = 250
 for i in range(numData):
     evs = [0] * 11
@@ -35,23 +35,30 @@ print("beginning network training...")
 epochCount = 1
 epochProgress = 0
 try:
-    while True:
-        cost, correct, _, _ = nnet.points_info(trainingData)
-        print(cost)
-        print(f"{correct}/{numData}")
-        if correct == numData:
-            break
-        for i in range(5):
+    trainNetwork = True
+    while trainNetwork:
+        # cost, correct, _, _ = nnet.points_info(trainingData)
+        # print(cost)
+        # print(f"{correct}/{numData}")
+        # if correct == numData:
+        #     break
+        for i in range(240):
             sampleData = trainingData[epochProgress:epochProgress + batchSize]
             epochProgress += batchSize
-            print(f"epoch #{epochCount} progress: {epochProgress/60000 * 100:2.2f}")
+            print(f"epoch #{epochCount} progress: {epochProgress/numData * 100:2.2f}")
             if epochProgress + batchSize > len(trainingData):
                 r.shuffle(trainingData)
                 epochProgress = 0
                 epochCount += 1
-            nnet.learn_with_derivatives(sampleData, .05)
+            nnet.learn_with_derivatives(sampleData, .06)
+        trainNetwork = False
 except KeyboardInterrupt:
     pass
+
+print("running test")
+cost, correct, _, _ = nnet.points_info(trainingData)
+print(cost)
+print(f"{correct}/{numData}")
 
 # save the network state
 nwrap.save_network(nnet)

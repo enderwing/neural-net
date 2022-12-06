@@ -10,8 +10,8 @@ from NeuralNetwork import NeuralNetwork
 def create_network(layers):
     return NeuralNetwork(layers)
 
-def import_network(filePath):
-    with open(filePath, 'rb') as inputFile:
+def import_network(networkName):
+    with open(f"networks/{networkName}.pickle", 'rb') as inputFile:
         nnet = pickle.load(inputFile)
     return nnet
 
@@ -72,8 +72,6 @@ def preprocess_image(imageName):
             pixelMass += outImage[row][col][0]
     xbar = np.trunc(xbar/pixelMass)
     ybar = np.trunc(ybar/pixelMass)
-    print(f"x-offset: {xbar:.1}")
-    print(f"y-offset: {ybar:.1}")
 
     ## center pixels using center of mass
     outImage = cv.warpAffine(outImage, np.float32([[1, 0, xbar], [0, 1, ybar]]), (28, 28))
@@ -81,7 +79,8 @@ def preprocess_image(imageName):
     cv.imwrite(f"images/{imageName}-processed.png", outImage)
 
 def classify_digit(imageName, nnet: NeuralNetwork):
-    image = cv.imread(f"images/{imageName}.png")
+    preprocess_image(imageName)
+    image = cv.imread(f"images/{imageName}-processed.png")
     imageData = [0] * 784
     for row in range(28):
         for col in range(28):

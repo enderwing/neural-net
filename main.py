@@ -49,7 +49,7 @@ def main():
             nnet = NNetWrapper.create_network(userLayers)
             inputLoop = False
         elif userInput == "i":
-            userFileName = input("Type the file path with the network file to import\n > ")
+            userFileName = input("Type the name of the saved network to import\n > ")
             nnet = NNetWrapper.import_network(userFileName)
             inputLoop = False
         elif userInput == "q":
@@ -61,6 +61,10 @@ def main():
         userInput = input("Type (C) to identify a custom image\n > ").lower().strip()
         if userInput == "c":
             userImageName = input("Press enter once an image has been saved to the images folder\n > ")
+            if not userImageName:
+                userImageName = "test"
+            digitGuess = NNetWrapper.classify_digit(userImageName, nnet)
+            print(f"Network Classification: {digitGuess}")
         elif userInput == "q":
             print("Exiting")
             return 0
